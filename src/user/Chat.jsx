@@ -60,7 +60,7 @@ const Chat = () => {
 
     useEffect(() => {
         messages();
-    }, [])
+    }, [id])
 
     return (
         <div className='flex flex-row justify-between'>
