@@ -1,42 +1,24 @@
 import { Redis } from '@upstash/redis';
-
+import {checkSession,getConnecterUser,unauthorizedResponse} from "../lib/session.js";
 
 // const PushNotifications = require("@pusher/push-notifications-server");
 
 
-export default async (request, response) => {
-
-    const redis = Redis.fromEnv();
-
-    async function getConnecterUser(request) {
-        let token = new Headers(request.headers).get('Authentication');
-        if (token === undefined || token === null || token === "") {
-            return null;
-        } else {
-            token = token.replace("Bearer ", "");
-        }
-        console.log("checking " + token);
-        const user = await redis.get(token);
-        console.log("Got user : " + user.username);
-        return user;
-    }
-
-    function triggerNotConnected(res) {
-        res.status(401).json("{code: \"UNAUTHORIZED\", message: \"Session expired\"}");
-    }
+export default async  (request, response) => {
 
     try {
 
-        const user = await getConnecterUser(request);
-        if (user === undefined || user === null) {
+        const connected = await checkSession(request);
+        if (!connected) {
             console.log("Not connected");
-            triggerNotConnected(response);
-
+            return unauthorizedResponse();
         }
+        const user = await getConnecterUser(request);
         const data = request.body;
         const senderId = user.id;
         const receiverId = Number(data?.receiverId)
         const roomId = Number(data?.roomId)
+
         const check = (receiverId, roomId) => {
             if (receiverId) { return receiverId; }
             return roomId;
@@ -51,24 +33,25 @@ export default async (request, response) => {
 
         };
 
-        const key = getChatKey(senderId, check_result); 
+        const key = getChatKey(senderId, check_result);
         const timestamp = Date.now();
         const messageData = {
             "senderId": senderId,
             "message": data.message,
             "timestamp": timestamp,
-            "username" :user.username
+            "username": user.username
         };
 
 
         const redis = Redis.fromEnv();
         await redis.rpush(key, JSON.stringify(messageData));
-        
-        response.status(200).json(messageData);
+
+        return response.status(200).json(messageData);
 
 
-    } catch (error) {
+    } 
+    catch (error) {
         console.log(error);
-        response.status(500).json({ error: error.message });
+         response.status(500).json({ error: error.message });
     }
 };

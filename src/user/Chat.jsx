@@ -6,9 +6,11 @@ import UsersList from './UsersList';
 
 const Chat = () => {
     const { id } = useParams();
+    const [error, setError] = useState();
     const [message, setMessage] = useState("");
     const token = sessionStorage.getItem('token');
-    const [conversation, setConversation] = useState([])
+    const [conversation, setConversation] = useState([]);
+    const [hint,setHint] = useState(0);
     const scrollRef = useRef(null);
     useEffect(() => {
         if (scrollRef.current) {
@@ -34,6 +36,7 @@ const Chat = () => {
                 }
             );
             setMessage("")
+            
         }
 
 
@@ -51,8 +54,10 @@ const Chat = () => {
                 setConversation(messagesedited);
 
             },
-            () => {
-                console.log("failed")
+            (error) => {
+                console.error("Error fetching users:", error);
+                
+
             }
 
         );

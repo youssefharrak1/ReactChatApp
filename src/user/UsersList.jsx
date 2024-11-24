@@ -17,7 +17,7 @@ const UsersList = () => {
             },
             (error) => {
                 console.error("Error fetching users:", error);
-                // Handle the error (e.g., show an error message to the user)
+                
             }
         );
     }
@@ -29,7 +29,6 @@ const UsersList = () => {
             },
             (error) => {
                 console.error("Error fetching users:", error);
-                // Handle the error (e.g., show an error message to the user)
             }
         );
     }

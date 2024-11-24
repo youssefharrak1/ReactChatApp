@@ -13,12 +13,12 @@ export function postMessage(message,token,onResult, onError) {
             onResult();
         } else {
             const error = await response.json() ;
+            sessionStorage.clear();
             onError(error);
         }
-    }, onError);
+    })
+    .catch(onError);
 
 
 
-
-    
 }

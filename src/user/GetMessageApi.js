@@ -14,6 +14,7 @@ fetch("/api/getmessages", {
         onResult(messages);
     } else {
         const error = await response.json() ;
+        sessionStorage.clear()
         onError(error);
     }
 }, onError);
